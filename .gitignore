@@ -1,0 +1,7 @@
+build/
+.vscode/
+*.pyc
+decode_env/
+*.spec
+dist/
+examples/
