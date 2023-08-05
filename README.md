@@ -5,10 +5,6 @@ to JPG images.
 
 ![Screenshot](Screenshot.jpg)
 
-NOAA image captured from satellite by Raven Redfox
-
-Decoder code is adapted from [https://github.com/zacstewart/apt-decoder](https://github.com/zacstewart/apt-decoder), under MIT license
-
 ### Intallation and running
 
 To install just the executable (for Windows):
@@ -45,4 +41,7 @@ python decode.py
 3) Select WAV file for image and <OK>. Program will decode the image and display.
 4) Save the image
 
+*****************
+NOAA image captured from satellite by Raven Redfox
 
+Decoder code is adapted from [https://github.com/zacstewart/apt-decoder](https://github.com/zacstewart/apt-decoder), under MIT license
