@@ -1,22 +1,21 @@
-import os
-import time
-from apt import APT
+from os import path, remove
+from time import time
 from cv2 import createCLAHE, imwrite
-import numpy as np
+from numpy import uint8
 from threading import Thread
 from queue import Queue, Empty
-
-
 import tkinter as tk
 from tkinter.messagebox import showerror, askyesno
 from tkinter import filedialog
 from PIL import Image, ImageTk
+from noaa_apt import APT
+
 
 class ImageViewerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("NOAA Satellite Image Viewer")
-        self.root.geometry("550x630")  # Set the window size to 500x500 pixels
+        self.root.geometry("550x630")  
         
         self.image_path = None
         self.img_label = tk.Label(root, highlightthickness=2, highlightbackground="black")
@@ -37,17 +36,22 @@ class ImageViewerApp:
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.have_image = False
-        self.image_path = 'default_image.jpg'
+        self.default_image = path.join('resources', 'default_image.jpg')
+        self.image_path = self.default_image
         self.display_image()
-
-
+    
     def on_close(self):
         if self.have_image:
             result = askyesno("Confirm", "Are you sure you want to exit without saving your image?")
             if not result:
                 return
-        if os.path.exists('temp.jpg'):
-            os.remove('temp.jpg')
+        else:
+            result = askyesno("Confirm", "Are you sure you want to exit?")
+            if not result:
+                return
+
+        if path.exists('temp.jpg'):
+           remove('temp.jpg')
         self.root.destroy()
 
     def open_image(self):
@@ -55,7 +59,7 @@ class ImageViewerApp:
             result = askyesno("Confirm", "Are you sure you want to proceed without saving the current image?")
             if not result:
                 return
-            self.image_path = 'default_image.jpg'
+            self.image_path = self.default_image
         self.display_image()
         self.have_image = False
 
@@ -67,7 +71,7 @@ class ImageViewerApp:
             decode_thread = Thread(target=self._decode, args=(que,))
             decode_thread.start()
             done = False
-            start = time.time()
+            start = time()
             self.text_box.delete("1.0", tk.END)
             self.text_box.insert(tk.END, 'Decoding')
             self.text_box.update()
@@ -75,7 +79,7 @@ class ImageViewerApp:
                 try:
                     success = que.get(block=True, timeout=1)
                 except Empty:
-                    elapsed = time.time() - start
+                    elapsed = time() - start
                     minutes = int(elapsed // 60)
                     seconds = int(elapsed % 60)
                     self.text_box.delete("1.0", tk.END)
@@ -97,11 +101,13 @@ class ImageViewerApp:
             self.open_button.config(state=tk.NORMAL)
             self.save_button.config(state=tk.NORMAL)
             
-
     def display_image(self):
         if self.image_path:
             image = Image.open(self.image_path)
-            image = image.resize((520, 548), Image.Resampling.LANCZOS)
+            w, h = image.size
+            ratio =  548 / h
+            new_w = int(w * ratio)
+            image = image.resize((new_w, 548), Image.Resampling.LANCZOS)
             photo = ImageTk.PhotoImage(image)
             self.img_label.config(image=photo)
             self.img_label.image = photo
@@ -122,7 +128,7 @@ class ImageViewerApp:
                 self.have_image = False
 
     def _clahe(self, image, clip_limit=40, tileGridSize=(8,8)):
-        image = image.astype(np.uint8)
+        image = image.astype(uint8)
         clahe = createCLAHE(clipLimit=clip_limit, tileGridSize=tileGridSize)
         new_image = clahe.apply(image)
         return new_image
