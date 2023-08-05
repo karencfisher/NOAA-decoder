@@ -4,6 +4,7 @@ MVP for an application to translate raw data files recorded from NOAA satellites
 to JPG images.
 
 ![Screenshot](Screenshot.jpg)
+
 NOAA image captured from satellite by Raven Redfox
 
 Decoder code is adapted from [https://github.com/zacstewart/apt-decoder](https://github.com/zacstewart/apt-decoder), under MIT license
